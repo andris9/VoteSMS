@@ -16,15 +16,20 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
-
+import logging
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write('Hello world!')
 
+class CreateUserHandler(webapp.RequestHandler):
+    def post(self):
+        self.response.out.write('Hello world, user!')
+        logging.debug(self.request.params)
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
+    application = webapp.WSGIApplication([('/', MainHandler),
+                                          ('/api/user', CreateUserHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 
