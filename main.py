@@ -38,6 +38,28 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write('Hello world!')
         self.response.out.write(GetService(self.request.get("id")) and "yess" or "fail - %s" % self.request.get("id"))
 
+class EditHandler(webapp.RequestHandler):
+    def get(self):
+        
+        req = fortumo.RequestValidator()
+        if not req.check_signature({
+                'api_key': fortumo.fortumo_config["api_key"],
+                'service_id': self.request.get('service_id'),
+                'sig':self.request.cookies.get('sig')
+            }):
+            self.error(500)
+            self.response.out.write("Session expired")
+            return
+        
+        service = GetService(self.request.get('service_id'))
+        if not service:
+            self.error(500)
+            self.response.out.write("Unknown service")
+            return
+        
+        self.response.out.write('Hello world! %s' % service.user.realname)
+
+
 class IncomingMessageHandler(webapp.RequestHandler):
     def post(self):
         
@@ -82,7 +104,8 @@ class IncomingMessageHandler(webapp.RequestHandler):
             self.response.out.write(error["message"])
             return
         
-        self.response.out.write("okidoki!")
+        
+        self.response.out.write("SMS RESPONSE MSG")
 
 
 class LoginHandler(webapp.RequestHandler):
@@ -110,7 +133,14 @@ class LoginHandler(webapp.RequestHandler):
             logging.debug({"error": "login", "data": self.request.params})
             return
         
-        self.response.out.write("okidoki!")
+        cookie_sig = req.signature({
+            'api_key': fortumo.fortumo_config["api_key"],
+            'service_id': self.request.get('service_id')
+        });
+        
+        set_cookie(self, "sig", cookie_sig,"/")
+        self.redirect("/edit?service_id=%s" % self.request.get('service_id'))
+
 
 class CreateServiceRequestHandler(webapp.RequestHandler):
     def post(self):
@@ -252,14 +282,18 @@ def CheckUser(user_data):
         return user
     return user
 
-
+def set_cookie(web, name, value, path):
+    cookie_data = '%s=%s; path=%s' % (name.encode(), value.encode(), path.encode())
+    logging.debug(cookie_data)
+    web.response.headers.add_header('Set-Cookie', cookie_data)
 
 def main():
     application = webapp.WSGIApplication([('/', MainHandler),
                                           ('/api/user', CreateServiceRequestHandler),
                                           ('/api/remove', RemoveServiceRequestHandler),
                                           ('/api/incoming', IncomingMessageHandler),
-                                          ('/login', LoginHandler)],
+                                          ('/login', LoginHandler),
+                                          ('/edit', EditHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 
