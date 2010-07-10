@@ -1,0 +1,15 @@
+# FORTUMO specific configuration
+# Service information, ID, secret and allowed IP addresses
+
+# Service ID and secret
+api_key: a01f6ad0eb471fd9f45dd52263435258
+secret:  b98160f3e4cefeb48277948768d7f4cf
+
+# Fortumo IP-addresses
+allowed_ips:
+- 81.20.151.38
+- 81.20.148.122
+- 209.20.83.207
+- 127.0.0.1 # <- Local IP, in case for debugging to simulate requests
+
+  
