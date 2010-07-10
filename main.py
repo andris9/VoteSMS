@@ -50,12 +50,13 @@ class IncomingMessageHandler(webapp.RequestHandler):
         error = {"message":None}
         def tnx():
             
-            service = GetService(self.request.get("service_id"))
+            service = Service.get_by_key_name(u"<%s>" % self.request.get("service_id"))
             if not service:
                 error["message"] = "Service not found"
                 return
-            
-            service.messages = service.messages+1
+
+            service.messages += 1
+            memcache.set(u"service-%s" % self.request.get("service_id"), service)
             
             message = Message(key_name = u"<%s>" % self.request.get("message_id"), parent = service)
             message.service   = service
