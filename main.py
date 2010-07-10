@@ -122,12 +122,15 @@ class LoginHandler(webapp.RequestHandler):
         url = "http://api.fortumo.com/service-types/api"
     
         form_data = urllib.urlencode(arg_list)
-        result = urlfetch.fetch(url=url,
-            payload=form_data,
-            method=urlfetch.POST,
-            headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        try:
+            result = urlfetch.fetch(url=url,
+                payload=form_data,
+                method=urlfetch.POST,
+                headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        except:
+            result = False
         
-        if result.status_code != 200:
+        if not result or result.status_code != 200:
             self.error(500)
             self.response.out.write('Request authentication failed')
             logging.debug({"error": "login", "data": self.request.params})
