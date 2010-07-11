@@ -28,6 +28,15 @@ import urllib
 # fortumo sõnumite autoriseerimiseks
 import fortumo
 
+from google.appengine.ext.webapp import template
+import os
+
+import yaml
+
+#load data from fortumo.yaml
+translations = yaml.load(open("translations.yaml"), Loader=yaml.Loader)
+
+
 # DB
 from google.appengine.ext import db
 
@@ -57,7 +66,11 @@ class EditHandler(webapp.RequestHandler):
             self.response.out.write("Unknown service")
             return
         
-        self.response.out.write('Hello world! %s' % service.user.realname)
+        template_values = {
+            'translations': translations["langs"]["EN"]
+        }
+        path = os.path.join(os.path.dirname(__file__), 'views/edit.poll.html')
+        self.response.out.write(template.render(path, template_values))
 
 
 class IncomingMessageHandler(webapp.RequestHandler):
