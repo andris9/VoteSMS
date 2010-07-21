@@ -10,7 +10,6 @@ class User(db.Model):
     phone = db.PhoneNumberProperty()
     time = db.DateTimeProperty(auto_now_add = True)
 
-
 class Service(db.Model):
     id = db.StringProperty()
     user = db.ReferenceProperty(reference_class = User)

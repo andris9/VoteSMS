@@ -1,9 +1,14 @@
+{% load i18n %}
+
 {% extends "edit.main.html" %}
 
-{% block title %} {{ translations.edit_poll_title }} {% endblock %}
+{% block title %} {% trans "Edit poll data" %} | {% endblock %}
 
 {% block body %}
 
-<h1>{{ translations.edit_poll_title }}</h1>
+<h1>{% blocktrans %}Edit poll data{% endblocktrans %}</h1>
+
+
+
 
 {% endblock %}

@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: VoteSMS 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-21 20:28+0300\n"
+"PO-Revision-Date: 2010-07-21 20:31+0200\n"
+"Last-Translator: Andris Reinman <andris@kreata.ee>\n"
+"Language-Team: Kreata <andris@kreata.ee>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: main.py:89
+msgid "Hello world!"
+msgstr "Tere maailm!"
+
+#: main.py:103
+msgid "Session expired"
+msgstr "Sessioon on aegunud, pead uuesti sisse logima"
+
+#: main.py:107
+msgid "Unknown service"
+msgstr "Tundmatu teenus"
+
+#: main.py:110
+msgid "SMS Poll"
+msgstr "SMS Hääletus"
+
+#: main.py:123
+#: main.py:189
+#: main.py:207
+#: main.py:213
+msgid "Request authentication failed"
+msgstr "Päringu autoriseerimine ebaõnnestus"
+
+#: main.py:130
+msgid "Service not found"
+msgstr "Teenust ei leitud"
+
+#: main.py:154
+msgid "Database error"
+msgstr "Andmebaasi viga"
+
+#: main.py:159
+msgid "Thank you for voting!"
+msgstr "Täname hääletamast!"
+
+#: main.py:218
+msgid "User verification failed"
+msgstr "Kasutaja tuvastamine ebaõnnestus"
+
+#: main.py:223
+#: main.py:235
+#: main.py:241
+msgid "Service verification failed"
+msgstr "Teenuse tuvastamine ebaõnnestus"
+
+#: main.py:225
+msgid "Service created"
+msgstr "Teenus on loodud"
+
+#: main.py:253
+msgid "Service removed"
+msgstr "Teenus on eemaldatud"
+
+#: conf/settings.py:5
+msgid "English"
+msgstr "Inglise"
+
+#: conf/settings.py:6
+msgid "Estonian"
+msgstr "Eesti"
+
+#: views/edit.poll.html:5
+#: views/edit.poll.html.py:9
+msgid "Edit poll data"
+msgstr "Muuda hääletuse andmeid"
+
+#: views/error.html:5
+#: views/error.html.py:9
+msgid "Error occured"
+msgstr "Ilmnes viga"
+
+#~ msgid "Toimeta kysimustikku"
+#~ msgstr "Toimeta küsimustikku"

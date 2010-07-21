@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: VoteSMS 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-21 20:28+0300\n"
+"PO-Revision-Date: 2010-07-21 20:32+0200\n"
+"Last-Translator: Andris Reinman <andris@kreata.ee>\n"
+"Language-Team: Kreata <andris@kreata.ee>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: main.py:89
+msgid "Hello world!"
+msgstr ""
+
+#: main.py:103
+msgid "Session expired"
+msgstr ""
+
+#: main.py:107
+msgid "Unknown service"
+msgstr ""
+
+#: main.py:110
+msgid "SMS Poll"
+msgstr ""
+
+#: main.py:123
+#: main.py:189
+#: main.py:207
+#: main.py:213
+msgid "Request authentication failed"
+msgstr ""
+
+#: main.py:130
+msgid "Service not found"
+msgstr ""
+
+#: main.py:154
+msgid "Database error"
+msgstr ""
+
+#: main.py:159
+msgid "Thank you for voting!"
+msgstr ""
+
+#: main.py:218
+msgid "User verification failed"
+msgstr ""
+
+#: main.py:223
+#: main.py:235
+#: main.py:241
+msgid "Service verification failed"
+msgstr ""
+
+#: main.py:225
+msgid "Service created"
+msgstr ""
+
+#: main.py:253
+msgid "Service removed"
+msgstr ""
+
+#: conf/settings.py:5
+msgid "English"
+msgstr ""
+
+#: conf/settings.py:6
+msgid "Estonian"
+msgstr ""
+
+#: views/edit.poll.html:5
+#: views/edit.poll.html.py:9
+msgid "Edit poll data"
+msgstr ""
+
+#: views/error.html:5
+#: views/error.html.py:9
+msgid "Error occured"
+msgstr ""
+
+#~ msgid "SMS Hääletus"
+#~ msgstr "SMS Voting"
+
+#~ msgid "Toimeta kysimustikku"
+#~ msgstr "Edit poll questions"

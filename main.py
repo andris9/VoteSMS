@@ -15,6 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import os
+import sys
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 import logging
@@ -25,30 +29,83 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 import urllib
 
+from google.appengine.ext.webapp import template
+
+# IP järgi asukohamaa leidmine
+sys.path.insert(0, 'iploc.zip')
+from iploc import convert as iptocountry
+
+# GETTEXT
+os.environ['DJANGO_SETTINGS_MODULE'] = 'conf.settings'
+from django.conf import settings
+settings._target = None
+from django.utils import translation
+
+
 # fortumo sõnumite autoriseerimiseks
 import fortumo
-
-from google.appengine.ext.webapp import template
-import os
-
 import yaml
-
-#load data from fortumo.yaml
-translations = yaml.load(open("translations.yaml"), Loader=yaml.Loader)
-
 
 # DB
 from google.appengine.ext import db
-
 from models import User, Service, Message
+
+
+country_to_locale = {
+    "ee":"et"
+}
+
+
+def ShowError(self, msg):
+    template_values = {
+        'message': msg
+    }
+    path = os.path.join(os.path.dirname(__file__), 'views/error.html')
+    self.response.out.write(template.render(path, template_values))
+    return False
+
+# Määrab kasutatava keele, kontrollides erinevaid parameetreid
+def SetLanguage(self, forced=False, check_ip = False):
+    
+    if not forced:
+        # vaikimisi
+        locale = "en"
+
+        # IP kontroll siia
+        if check_ip:
+            country = iptocountry()
+            if country and country != "XX" and country.lower() in country_to_locale:
+                locale = country_to_locale[country.lower()]
+
+        # kontrolli country parameetrit
+        if self.request.get("country") and self.request.get("country").lower() in country_to_locale:
+            locale = country_to_locale[self.request.get("country").lower()]
+
+        # kontrolli locale parameetrit 
+        if self.request.get("locale"):
+            locale = self.request.get("locale")
+    
+        # kontrolli küpsist
+        if self.request.cookies.get('locale'):
+            locale = self.request.cookies.get('locale')
+    
+    else:
+        locale = forced
+    
+    translation.activate(locale.lower()[:2])
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        
+        SetLanguage(self, check_ip = True)
+        
+        self.response.out.write(_('Hello world!'))
         self.response.out.write(GetService(self.request.get("id")) and "yess" or "fail - %s" % self.request.get("id"))
 
 class EditHandler(webapp.RequestHandler):
     def get(self):
+
+        SetLanguage(self, check_ip = True)
         
         req = fortumo.RequestValidator()
         if not req.check_signature({
@@ -56,18 +113,17 @@ class EditHandler(webapp.RequestHandler):
                 'service_id': self.request.get('service_id'),
                 'sig':self.request.cookies.get('sig')
             }):
-            self.error(500)
-            self.response.out.write("Session expired")
-            return
+            return ShowError(self, _("Session expired"))
         
         service = GetService(self.request.get('service_id'))
         if not service:
-            self.error(500)
-            self.response.out.write("Unknown service")
-            return
+            return ShowError(self, _("Unknown service"))
+        
+        user = service.user
+        SetLanguage(self, user.locale)
         
         template_values = {
-            'translations': translations["langs"]["EN"]
+            'title': _("SMS Poll")
         }
         path = os.path.join(os.path.dirname(__file__), 'views/edit.poll.html')
         self.response.out.write(template.render(path, template_values))
@@ -76,10 +132,11 @@ class EditHandler(webapp.RequestHandler):
 class IncomingMessageHandler(webapp.RequestHandler):
     def post(self):
         
+        SetLanguage(self)
+        
         if not fortumo.CheckValidRequest(self.request.params):
-            self.error(500)
-            self.response.out.write('Request authentication failed')
             logging.debug({"error": "authorization", "data": self.request.params})
+            self.response.out.write(_('Request authentication failed'))
             return
         
         error = {"message":None}
@@ -87,7 +144,7 @@ class IncomingMessageHandler(webapp.RequestHandler):
             
             service = Service.get_by_key_name(u"<%s>" % self.request.get("service_id"))
             if not service:
-                error["message"] = "Service not found"
+                error["message"] = _("Service not found")
                 return
 
             service.messages += 1
@@ -111,18 +168,21 @@ class IncomingMessageHandler(webapp.RequestHandler):
         try:
             db.run_in_transaction(tnx)
         except db.TransactionFailedError, e:
-            error["message"] = "Database error"
+            error["message"] = _("Database error")
         
         if error["message"]:
+            logging.debug({"error": "transaction", "message": error["message"], "data": self.request.params})
             self.response.out.write(error["message"])
             return
         
-        
-        self.response.out.write("SMS RESPONSE MSG")
+        self.response.out.write(_("Thank you for voting!"))
 
 
 class LoginHandler(webapp.RequestHandler):
     def get(self):
+        
+        SetLanguage(self)
+        
         arg_list = {
             'api_key': fortumo.fortumo_config["api_key"],
             'auth_token': self.request.get('auth_token'),
@@ -144,10 +204,8 @@ class LoginHandler(webapp.RequestHandler):
             result = False
         
         if not result or result.status_code != 200:
-            self.error(500)
-            self.response.out.write('Request authentication failed')
             logging.debug({"error": "login", "data": self.request.params})
-            return
+            return ShowError(self, _('Request authentication failed'))
         
         cookie_sig = req.signature({
             'api_key': fortumo.fortumo_config["api_key"],
@@ -161,53 +219,45 @@ class LoginHandler(webapp.RequestHandler):
 class CreateServiceRequestHandler(webapp.RequestHandler):
     def post(self):
         
+        SetLanguage(self)
+        
         if not fortumo.CheckValidRequest(self.request.params):
-            self.error(500)
-            self.response.out.write('Request authentication failed')
             logging.debug({"error": "authorization", "data": self.request.params})
-            return
+            return ShowError(self, _('Request authentication failed'))
         
         req = fortumo.RequestHandler()
         req_data = req.parseRequestXML(self.request.get("xml"))
         if not req_data:
-            self.error(500)
-            self.response.out.write('Request validation failed')
             logging.debug({"error": "validation", "data": self.request.params})
-            return
+            return ShowError(self, _('Request authentication failed'))
         
         user = CheckUser(req_data["user"])
         if not user:
-            self.error(500)
-            self.response.out.write('User verification failed')
             logging.debug({"error": "db create user", "data": self.request.params})
-            return
+            return ShowError(self, _('User verification failed'))
         
         service = CheckService(req_data["service"], req_data["countries"], user)
         if not service:
-            self.error(500)
-            self.response.out.write('Service verification failed')
             logging.debug({"error": "db create service", "data": self.request.params})
-            return
+            return ShowError(self, _('Service verification failed'))
         
-        self.response.out.write('OK')
+        self.response.out.write(_('Service created'))
 
 # TODO: Tuleks arvestada määratud ajaga, momendil võetakse kohe maha
 class RemoveServiceRequestHandler(webapp.RequestHandler):
     def post(self):
         
+        SetLanguage(self)
+        
         if not fortumo.CheckValidRequest(self.request.params):
-            self.error(500)
-            self.response.out.write('Request authentication failed')
             logging.debug({"error": "authorization", "data": self.request.params})
-            return
+            return ShowError(self, _('Service verification failed'))
         
         req = fortumo.RequestHandler()
         req_data = req.parseRequestXML(self.request.get("xml"))
         if not req_data:
-            self.error(500)
-            self.response.out.write('Request validation failed')
             logging.debug({"error": "validation", "data": self.request.params})
-            return
+            return ShowError(self, _('Service verification failed'))
         
         if req_data["service"]:
             service = GetService(req_data["service"])
@@ -219,7 +269,7 @@ class RemoveServiceRequestHandler(webapp.RequestHandler):
                     pass
             memcache.delete(u"service-%s" % req_data["service"])
 
-        self.response.out.write("service removed")
+        self.response.out.write(_("Service removed"))
 
 # korjab välja kasutaja andmed
 def GetUser(id):
