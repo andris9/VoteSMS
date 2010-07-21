@@ -57,6 +57,7 @@ country_to_locale = {
 
 
 def ShowError(self, msg):
+    self.error(500)
     template_values = {
         'message': msg
     }
@@ -222,24 +223,32 @@ class CreateServiceRequestHandler(webapp.RequestHandler):
         SetLanguage(self)
         
         if not fortumo.CheckValidRequest(self.request.params):
+            self.error(500)
             logging.debug({"error": "authorization", "data": self.request.params})
-            return ShowError(self, _('Request authentication failed'))
+            self.response.out.write(_('Request authentication failed'))
+            return
         
         req = fortumo.RequestHandler()
         req_data = req.parseRequestXML(self.request.get("xml"))
         if not req_data:
+            self.error(500)
             logging.debug({"error": "validation", "data": self.request.params})
-            return ShowError(self, _('Request authentication failed'))
+            self.response.out.write(_('Request authentication failed'))
+            return
         
         user = CheckUser(req_data["user"])
         if not user:
+            self.error(500)
             logging.debug({"error": "db create user", "data": self.request.params})
-            return ShowError(self, _('User verification failed'))
+            self.response.out.write(_('User verification failed'))
+            return
         
         service = CheckService(req_data["service"], req_data["countries"], user)
         if not service:
+            self.error(500)
             logging.debug({"error": "db create service", "data": self.request.params})
-            return ShowError(self, _('Service verification failed'))
+            self.response.out.write(_('Service verification failed'))
+            return
         
         self.response.out.write(_('Service created'))
 
@@ -250,14 +259,18 @@ class RemoveServiceRequestHandler(webapp.RequestHandler):
         SetLanguage(self)
         
         if not fortumo.CheckValidRequest(self.request.params):
+            self.error(500)
             logging.debug({"error": "authorization", "data": self.request.params})
-            return ShowError(self, _('Service verification failed'))
+            self.response.out.write(_('Service verification failed'))
+            return
         
         req = fortumo.RequestHandler()
         req_data = req.parseRequestXML(self.request.get("xml"))
         if not req_data:
+            self.error(500)
             logging.debug({"error": "validation", "data": self.request.params})
-            return ShowError(self, _('Service verification failed'))
+            self.response.out.write(_('Service verification failed'))
+            return
         
         if req_data["service"]:
             service = GetService(req_data["service"])
