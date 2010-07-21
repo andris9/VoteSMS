@@ -41,7 +41,6 @@ from django.conf import settings
 settings._target = None
 from django.utils import translation
 
-
 # fortumo sõnumite autoriseerimiseks
 import fortumo
 import yaml
@@ -50,58 +49,21 @@ import yaml
 from google.appengine.ext import db
 from models import User, Service, Message
 
-
+# asukoha ja keele map IP kontrolli ja country parameetri jaoks
 country_to_locale = {
     "ee":"et"
 }
 
 
-def ShowError(self, msg):
-    self.error(500)
-    template_values = {
-        'message': msg
-    }
-    path = os.path.join(os.path.dirname(__file__), 'views/error.html')
-    self.response.out.write(template.render(path, template_values))
-    return False
-
-# Määrab kasutatava keele, kontrollides erinevaid parameetreid
-def SetLanguage(self, forced=False, check_ip = False):
-    
-    if not forced:
-        # vaikimisi
-        locale = "en"
-
-        # IP kontroll siia
-        if check_ip:
-            country = iptocountry()
-            if country and country != "XX" and country.lower() in country_to_locale:
-                locale = country_to_locale[country.lower()]
-
-        # kontrolli country parameetrit
-        if self.request.get("country") and self.request.get("country").lower() in country_to_locale:
-            locale = country_to_locale[self.request.get("country").lower()]
-
-        # kontrolli locale parameetrit 
-        if self.request.get("locale"):
-            locale = self.request.get("locale")
-    
-        # kontrolli küpsist
-        if self.request.cookies.get('locale'):
-            locale = self.request.cookies.get('locale')
-    
-    else:
-        locale = forced
-    
-    translation.activate(locale.lower()[:2])
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         
         SetLanguage(self, check_ip = True)
         
-        self.response.out.write(_('Hello world!'))
-        self.response.out.write(GetService(self.request.get("id")) and "yess" or "fail - %s" % self.request.get("id"))
+        template_values = {}
+        path = os.path.join(os.path.dirname(__file__), 'views/front.html')
+        self.response.out.write(template.render(path, template_values))
 
 class EditHandler(webapp.RequestHandler):
     def get(self):
@@ -129,6 +91,8 @@ class EditHandler(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'views/edit.poll.html')
         self.response.out.write(template.render(path, template_values))
 
+
+##### FORTUMO PÄRINGUD ########
 
 class IncomingMessageHandler(webapp.RequestHandler):
     def post(self):
@@ -284,6 +248,9 @@ class RemoveServiceRequestHandler(webapp.RequestHandler):
 
         self.response.out.write(_("Service removed"))
 
+
+##### ANDMETE PÄRINGUD ########
+
 # korjab välja kasutaja andmed
 def GetUser(id):
     user = memcache.get(u"user-%s" % id)
@@ -361,10 +328,54 @@ def CheckUser(user_data):
         return user
     return user
 
+##### UTILIIDID ########
+
 def set_cookie(web, name, value, path):
     cookie_data = '%s=%s; path=%s' % (name.encode(), value.encode(), path.encode())
     logging.debug(cookie_data)
     web.response.headers.add_header('Set-Cookie', cookie_data)
+
+# Näita ERROR lehte
+def ShowError(self, msg):
+    self.error(500)
+    template_values = {
+        'message': msg
+    }
+    path = os.path.join(os.path.dirname(__file__), 'views/error.html')
+    self.response.out.write(template.render(path, template_values))
+    return False
+
+# Määrab kasutatava keele, kontrollides erinevaid parameetreid
+# IP on vaikimisi väljas, kuna Fortumo päringud väljastaksid nii
+# alati asukohaks eesti
+def SetLanguage(self, forced=False, check_ip = False):
+    
+    if not forced:
+        # vaikimisi
+        locale = "en"
+
+        # IP kontroll siia
+        if check_ip:
+            country = iptocountry()
+            if country and country != "XX" and country.lower() in country_to_locale:
+                locale = country_to_locale[country.lower()]
+
+        # kontrolli country parameetrit
+        if self.request.get("country") and self.request.get("country").lower() in country_to_locale:
+            locale = country_to_locale[self.request.get("country").lower()]
+
+        # kontrolli locale parameetrit 
+        if self.request.get("locale"):
+            locale = self.request.get("locale")
+    
+        # kontrolli küpsist
+        if self.request.cookies.get('locale'):
+            locale = self.request.cookies.get('locale')
+    
+    else:
+        locale = forced
+    
+    translation.activate(locale.lower()[:2])
 
 def main():
     application = webapp.WSGIApplication([('/', MainHandler),
