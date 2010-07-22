@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 from google.appengine.ext.webapp import template
 
@@ -16,7 +17,7 @@ country_to_locale = {
 
 def set_cookie(web, name, value, path):
     cookie_data = '%s=%s; path=%s' % (name.encode(), value.encode(), path.encode())
-    logging.debug(cookie_data)
+    logging.debug({"set-cookie": cookie_data})
     web.response.headers.add_header('Set-Cookie', cookie_data)
 
 # Näita ERROR lehte
