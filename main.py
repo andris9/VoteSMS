@@ -31,15 +31,10 @@ import urllib
 
 from google.appengine.ext.webapp import template
 
-# IP järgi asukohamaa leidmine
-sys.path.insert(0, 'iploc.zip')
-from iploc import convert as iptocountry
-
-# GETTEXT
+# GETTEXT seadistamine (peale import os käsku)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'conf.settings'
 from django.conf import settings
 settings._target = None
-from django.utils import translation
 
 # fortumo sõnumite autoriseerimiseks
 import fortumo
@@ -49,22 +44,25 @@ import yaml
 from google.appengine.ext import db
 from models import User, Service, Message
 
-# asukoha ja keele map IP kontrolli ja country parameetri jaoks
-country_to_locale = {
-    "ee":"et"
-}
+# Utilities
+from helpers import set_cookie, ShowError, SetLanguage, iptocountry
 
 
+######## LEHEKÜLJED ############
 
+# /
 class MainHandler(webapp.RequestHandler):
     def get(self):
         
         SetLanguage(self, check_ip = True)
         
-        template_values = {}
+        template_values = {
+            "country": iptocountry().lower()
+        }
         path = os.path.join(os.path.dirname(__file__), 'views/front.html')
         self.response.out.write(template.render(path, template_values))
 
+# /edit
 class EditHandler(webapp.RequestHandler):
     def get(self):
 
@@ -94,6 +92,7 @@ class EditHandler(webapp.RequestHandler):
 
 ##### FORTUMO PÄRINGUD ########
 
+# /api/incoming
 class IncomingMessageHandler(webapp.RequestHandler):
     def post(self):
         
@@ -143,10 +142,11 @@ class IncomingMessageHandler(webapp.RequestHandler):
         self.response.out.write(_("Thank you for voting!"))
 
 
+# /login
 class LoginHandler(webapp.RequestHandler):
     def get(self):
         
-        SetLanguage(self)
+        SetLanguage(self, check_ip = True)
         
         arg_list = {
             'api_key': fortumo.fortumo_config["api_key"],
@@ -180,7 +180,7 @@ class LoginHandler(webapp.RequestHandler):
         set_cookie(self, "sig", cookie_sig,"/")
         self.redirect("/edit?service_id=%s" % self.request.get('service_id'))
 
-
+# /api/user
 class CreateServiceRequestHandler(webapp.RequestHandler):
     def post(self):
         
@@ -217,6 +217,7 @@ class CreateServiceRequestHandler(webapp.RequestHandler):
         self.response.out.write(_('Service created'))
 
 # TODO: Tuleks arvestada määratud ajaga, momendil võetakse kohe maha
+# /api/remove
 class RemoveServiceRequestHandler(webapp.RequestHandler):
     def post(self):
         
@@ -328,65 +329,23 @@ def CheckUser(user_data):
         return user
     return user
 
-##### UTILIIDID ########
 
-def set_cookie(web, name, value, path):
-    cookie_data = '%s=%s; path=%s' % (name.encode(), value.encode(), path.encode())
-    logging.debug(cookie_data)
-    web.response.headers.add_header('Set-Cookie', cookie_data)
-
-# Näita ERROR lehte
-def ShowError(self, msg):
-    self.error(500)
-    template_values = {
-        'message': msg
-    }
-    path = os.path.join(os.path.dirname(__file__), 'views/error.html')
-    self.response.out.write(template.render(path, template_values))
-    return False
-
-# Määrab kasutatava keele, kontrollides erinevaid parameetreid
-# IP on vaikimisi väljas, kuna Fortumo päringud väljastaksid nii
-# alati asukohaks eesti
-def SetLanguage(self, forced=False, check_ip = False):
-    
-    if not forced:
-        # vaikimisi
-        locale = "en"
-
-        # IP kontroll siia
-        if check_ip:
-            country = iptocountry()
-            if country and country != "XX" and country.lower() in country_to_locale:
-                locale = country_to_locale[country.lower()]
-
-        # kontrolli country parameetrit
-        if self.request.get("country") and self.request.get("country").lower() in country_to_locale:
-            locale = country_to_locale[self.request.get("country").lower()]
-
-        # kontrolli locale parameetrit 
-        if self.request.get("locale"):
-            locale = self.request.get("locale")
-    
-        # kontrolli küpsist
-        if self.request.cookies.get('locale'):
-            locale = self.request.cookies.get('locale')
-    
-    else:
-        locale = forced
-    
-    translation.activate(locale.lower()[:2])
+######## MAIN ##########
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler),
-                                          ('/api/user', CreateServiceRequestHandler),
-                                          ('/api/remove', RemoveServiceRequestHandler),
-                                          ('/api/incoming', IncomingMessageHandler),
-                                          ('/login', LoginHandler),
-                                          ('/edit', EditHandler)],
-                                         debug=True)
+    
+    # URL'ide suunamine
+    application = webapp.WSGIApplication([
+            ('/', MainHandler),
+            ('/api/user', CreateServiceRequestHandler),
+            ('/api/remove', RemoveServiceRequestHandler),
+            ('/api/incoming', IncomingMessageHandler),
+            ('/login', LoginHandler),
+            ('/edit', EditHandler)
+        ],
+        debug=True) # deploymentis peaks olema False
+    
     util.run_wsgi_app(application)
-
 
 if __name__ == '__main__':
     main()

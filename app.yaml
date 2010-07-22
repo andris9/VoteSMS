@@ -11,13 +11,14 @@ handlers:
 - url: /icons/.*
   script: $PYTHON_LIB/google/appengine/ext/zipserve
 
-- url: /robots.txt
+- url: /robots\.txt
   static_files: static/robots.txt
   upload: static/robots.txt
 
-- url: /favicon.ico
+- url: /favicon\.ico
   static_files: static/favicon.ico
   upload: static/favicon.ico
+  mime_type: image/x-icon
 
 - url: /media
   static_dir: static/media
