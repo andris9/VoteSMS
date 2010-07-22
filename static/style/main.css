@@ -42,8 +42,15 @@ table.formatted td input{
     text-transform: uppercase;
 }
 
+
+table.formatted td a.remove{
+    display: block;
+    float: right;
+    margin: 5px 5px 0 0;
+}
+
 table.formatted td input.code{
-    width: 60px;
+    width: 64px;
     padding: 5px;
     font-size: 14px;
     font-family: Arial, Helvetica, Sans-serif;
@@ -53,13 +60,12 @@ table.formatted td input.code{
 }
 
 table.formatted td input.description{
-    width: 330px;
+    width: 355px;
     padding: 5px;
     font-size: 14px;
     font-family: Arial, Helvetica, Sans-serif;
     border: 1px solid #999;
     display: block;
-    margin: 0 auto;
 }
 
 table.formatted td.nr{

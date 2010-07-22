@@ -112,6 +112,7 @@ EDITOR = {
             var row = $("templates").down("#table-no-rows").down("tr").cloneNode(true);
             row.id="table-empty-row";
             $("poll_data").insert(row);
+            this._cur = 0;
         }else{
             this.renumber();
         }

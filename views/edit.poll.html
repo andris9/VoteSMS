@@ -15,14 +15,13 @@
 
         <p><a href="javascript:void(0)" onclick="EDITOR.mode('normal')">Normal mode</a> | <a href="javascript:void(0)" onclick="EDITOR.mode('edit')">Edit mode</a></p>
         
-        <table id="poll_data" class="formatted" border="0" cellspacing="0" cellpadding="0" width="600">
+        <table id="poll_data" class="formatted" border="0" cellspacing="0" cellpadding="0" width="560">
         
             <thead>
                 <tr>
                     <th width="40">#</th>
                     <th width="80">{% trans "Code" %}</th>
                     <th>{% trans "Description" %}</th>
-                    <th width="80">&nbsp;</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,7 +42,7 @@
                 {% else %}
                 
                 <tr id="table-empty-row" class="edit-row">
-                    <td colspan="4">{% trans "No codes set." %} <a href="javascript:void(0)" onclick="if(!EDITOR.mode('edit'))EDITOR.add();">{% trans "Add one here" %}</a></td>
+                    <td colspan="3">{% trans "No codes set." %} <a href="javascript:void(0)" onclick="if(!EDITOR.mode('edit'))EDITOR.add();">{% trans "Add one here" %}</a></td>
                 </tr>                
                 
                 {% endif %}
@@ -60,8 +59,10 @@
                 <tr class="edit-row">
                     <td class="nr"><span class="nr"></span></td>
                     <td class="code"><input class="code" name="code" value="" /></td>
-                    <td><input class="description" name="description" value="" /></td>
-                    <td><a href="javascript:void(0)" class="remove">{% trans "Remove" %}</a></td>
+                    <td>
+                        <a href="javascript:void(0)" class="remove"><img src="/icons/16x16/cross.png" alt="{% trans "Remove" %}" title="{% trans "Remove" %}"/></a>
+                        <input class="description" name="description" value="" />
+                    </td>
                 </tr>
             </table>
             
@@ -70,13 +71,12 @@
                     <td class="nr"><span class="nr"></span></td>
                     <td class="code"><span class="code"></span></td>
                     <td><span class="description"></span></td>
-                    <td>&nbsp;</td>
                 </tr>
             </table>
             
             <table id="table-no-rows">
                 <tr class="edit-row">
-                    <td colspan="4">{% trans "No codes set." %} <a href="javascript:void(0)" onclick="if(!EDITOR.mode('edit'))EDITOR.add();">{% trans "Add one here" %}</a></td>
+                    <td colspan="3">{% trans "No codes set." %} <a href="javascript:void(0)" onclick="if(!EDITOR.mode('edit'))EDITOR.add();">{% trans "Add one here" %}</a></td>
                 </tr>
             </table>
             
