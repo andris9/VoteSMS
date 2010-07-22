@@ -5,7 +5,7 @@ body{
 }
 
 h1{
-    font-size: 28px;
+    font-size: 22px;
     font-weight: bold;
     line-height: 32px;
     margin: 10px 0;
@@ -14,4 +14,22 @@ h1{
 
 img{
     border:0;
+}
+
+table.formatted{
+    border-right: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
+}
+
+table.formatted td, table.formatted th{
+    border-left: 1px solid #CCC;
+    border-top: 1px solid #CCC;
+    padding: 3px 5px;
+    font-size: 14px;
+}
+
+table.formatted th{
+    background: #008C00;
+    color: white;
+    font-weight: bold; 
 }

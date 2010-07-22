@@ -9,4 +9,43 @@
 
 {% block body %}
         <h1>{% blocktrans %}Edit poll data{% endblocktrans %}</h1>
+        
+        
+        <table class="formatted" border="0" cellspacing="0" cellpadding="0" style="width: 600px;">
+        
+            <thead>
+                <tr>
+                    <th width="80">#</th>
+                    <th width="140">{% trans "Code" %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th width="140">{% trans "Votes" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+                {% if codes %}
+
+                    {% for code in codes %}
+                    
+                    <tr>
+                        <td>{{ code.code }}</td>
+                        <td>{{ code.description }}</td>
+                        <td>{{ code.votes }}</td>
+                    </tr>
+                    
+                    {% endfor %}
+                
+                {% else %}
+                
+                <tr>
+                    <td colspan="4">{% trans "No codes set." %} <a href="/add">{% trans "Add here" %}</a></td>
+                </tr>                
+                
+                {% endif %}
+
+            
+            </tbody>
+        
+        </table>
+        
 {% endblock %}
