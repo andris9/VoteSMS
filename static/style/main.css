@@ -33,3 +33,7 @@ table.formatted th{
     color: white;
     font-weight: bold; 
 }
+
+table.formatted td.code{
+    font-weight: bold;
+}
