@@ -37,3 +37,32 @@ table.formatted th{
 table.formatted td.code{
     font-weight: bold;
 }
+
+table.formatted td input{
+    text-transform: uppercase;
+}
+
+table.formatted td input.code{
+    width: 60px;
+    padding: 5px;
+    font-size: 14px;
+    font-family: Arial, Helvetica, Sans-serif;
+    border: 1px solid #999;
+    display: block;
+    margin: 0 auto;
+}
+
+table.formatted td input.description{
+    width: 330px;
+    padding: 5px;
+    font-size: 14px;
+    font-family: Arial, Helvetica, Sans-serif;
+    border: 1px solid #999;
+    display: block;
+    margin: 0 auto;
+}
+
+table.formatted td.nr{
+    text-align: right;
+    padding-right: 5px;
+}
